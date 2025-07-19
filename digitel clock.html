@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Digital Clock - Dark & Neon</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #0f2027;
+      --text: #00e6d8;
+      --box: rgba(0, 255, 255, 0.05);
+      --shadow: rgba(0, 255, 255, 0.3);
+      --text-glow: 0 0 4px var(--text), 0 0 6px var(--text);
+      --box-glow: 0 0 5px var(--shadow);
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      background: radial-gradient(circle at center, var(--bg), #203a43, #2c5364);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Segoe UI', sans-serif;
+      transition: background 0.5s ease;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .top-right {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 10;
+    }
+
+    .theme-button {
+      background: transparent;
+      border: 2px solid var(--text);
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      color: var(--text);
+      border-radius: 8px;
+      cursor: pointer;
+      text-shadow: 0 0 2px var(--text);
+      box-shadow: 0 0 5px var(--text), 0 0 10px var(--text) inset;
+      transition: all 0.5s ease;
+    }
+
+    .theme-button:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .clock {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .digit, .colon {
+      width: 70px;
+      height: 90px;
+      background: var(--box);
+      border-radius: 15px;
+      box-shadow: var(--box-glow);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 3.5rem;
+      font-weight: bold;
+      color: var(--text);
+      position: relative;
+      overflow: hidden;
+      text-shadow: var(--text-glow);
+      transition: all 0.5s ease;
+    }
+
+    .colon {
+      width: 40px;
+      background: none;
+      box-shadow: none;
+      font-size: 3rem;
+    }
+
+    .digit span {
+      position: absolute;
+      transition: transform 0.5s ease, opacity 0.5s ease;
+    }
+
+    .digit span.new {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+
+    .digit.animate span.old {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+
+    .digit.animate span.new {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .date-display {
+      font-size: 1.4rem;
+      color: var(--text);
+      text-shadow: 0 0 4px var(--text);
+      margin-top: 10px;
+      transition: all 0.5s ease;
+    }
+
+    .flash-overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: transparent;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 100;
+      transition: opacity 0.4s ease;
+    }
+
+    /* Neon Theme */
+    .neon {
+      --bg: #000000;
+      --text: #39ff14;
+      --box: rgba(57, 255, 20, 0.1);
+      --shadow: rgba(57, 255, 20, 0.5);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Flash overlay -->
+  <div class="flash-overlay" id="flashOverlay"></div>
+
+  <!-- Theme switch button -->
+  <div class="top-right">
+    <button class="theme-button" onclick="switchTheme()">Switch Theme</button>
+  </div>
+
+  <!-- Clock and date -->
+  <div class="clock" id="clock"></div>
+  <div class="date-display" id="dateDisplay"></div>
+
+  <script>
+    const clockEl = document.getElementById("clock");
+    const dateDisplay = document.getElementById("dateDisplay");
+    const flashOverlay = document.getElementById("flashOverlay");
+    const themes = ['dark', 'neon']; // light removed
+    let currentTheme = 0;
+    let previousTime = "";
+
+    function switchTheme() {
+      document.body.classList.remove(...themes);
+      currentTheme = (currentTheme + 1) % themes.length;
+      const theme = themes[currentTheme];
+
+      flashOverlay.style.backgroundColor = theme === 'dark' ? '#000' : '#000';
+      flashOverlay.style.opacity = "1";
+      setTimeout(() => flashOverlay.style.opacity = "0", 300);
+
+      if (theme !== 'dark') {
+        document.body.classList.add(theme);
+      }
+    }
+
+    function createDigit(value) {
+      const digit = document.createElement("div");
+      digit.className = "digit";
+      const span = document.createElement("span");
+      span.classList.add("old");
+      span.textContent = value;
+      digit.appendChild(span);
+      return digit;
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const h = now.getHours().toString().padStart(2, '0');
+      const m = now.getMinutes().toString().padStart(2, '0');
+      const s = now.getSeconds().toString().padStart(2, '0');
+      const currentTime = h + ':' + m + ':' + s;
+
+      for (let i = 0; i < currentTime.length; i++) {
+        const newChar = currentTime[i];
+        const prevChar = previousTime[i];
+        const box = clockEl.children[i];
+        if (newChar === ':') continue;
+
+        if (newChar !== prevChar) {
+          const oldSpan = box.querySelector('.old');
+          const newSpan = document.createElement('span');
+          newSpan.textContent = newChar;
+          newSpan.classList.add("new");
+          box.appendChild(newSpan);
+          box.classList.add("animate");
+
+          setTimeout(() => {
+            if (oldSpan) box.removeChild(oldSpan);
+            newSpan.classList.remove("new");
+            newSpan.classList.add("old");
+            box.classList.remove("animate");
+          }, 500);
+        }
+      }
+
+      previousTime = currentTime;
+
+      const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      const day = days[now.getDay()];
+      const date = now.toLocaleDateString(undefined, {
+        year: "numeric", month: "long", day: "numeric"
+      });
+      dateDisplay.textContent = `${day}, ${date}`;
+    }
+
+    function buildClock() {
+      const timeStr = new Date().toTimeString().substring(0, 8);
+      for (let char of timeStr) {
+        if (char === ':') {
+          const colon = document.createElement("div");
+          colon.className = "colon";
+          colon.textContent = ":";
+          clockEl.appendChild(colon);
+        } else {
+          clockEl.appendChild(createDigit(char));
+        }
+      }
+      previousTime = timeStr;
+    }
+
+    buildClock();
+    setInterval(updateClock, 1000);
+  </script>
+</body>
+</html>
