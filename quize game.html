@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Quiz Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
+      color: white;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .quiz-container {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 30px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 0 20px rgba(0,255,255,0.2);
+    }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      background-color: #00e6e6;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 20px;
+      margin: 10px 0;
+      color: black;
+      font-weight: bold;
+      width: 100%;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .btn:hover {
+      background-color: #00cccc;
+    }
+
+    .btn.correct {
+      background-color: #28a745 !important;
+      color: white;
+    }
+
+    .btn.wrong {
+      background-color: #dc3545 !important;
+      color: white;
+    }
+
+    .next-btn {
+      margin-top: 20px;
+      display: none;
+    }
+
+    #result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="quiz-container" id="quiz">
+  <h2 id="question">Question text</h2>
+  <div id="answer-buttons"></div>
+  <button class="btn next-btn" id="next-btn" onclick="nextQuestion()">Next</button>
+  <div id="result"></div>
+</div>
+
+<script>
+  const questions = [
+    {
+      question: "What is the length of the pitch between the two wickets in cricket?",
+      answers: [
+        { text: "20 yards", correct: false },
+        { text: "21 yards", correct: false },
+        { text: "22 yards", correct: true },
+        { text: "23 yards", correct: false }
+      ]
+    },
+    {
+      question: "Which of the following is NOT a way to dismiss a batsman in cricket?",
+      answers: [
+        { text: "Caught", correct: false },
+        { text: "Bowled", correct: false },
+        { text: "Stumped", correct: false },
+        { text: "Run Out", correct: true },
+        { text: "Hit Wicket", correct: false }
+      ]
+    },
+    {
+      question: "How many players are on the field for each team during a cricket match?",
+      answers: [
+        { text: "9", correct: false },
+        { text: "10", correct: true },
+        { text: "11", correct: false },
+        { text: "12", correct: false }
+      ]
+    },
+    {
+      question: "What is the term for the fielding position directly behind the wicket-keeper?",
+      answers: [
+        { text: "Mid-off", correct: false },
+        { text: "Mid-on", correct: true },
+        { text: "Short Leg", correct: false },
+        { text: "Third Man", correct: false }
+      ]
+    }
+  ];
+
+  const questionElement = document.getElementById("question");
+  const answerButtons = document.getElementById("answer-buttons");
+  const nextButton = document.getElementById("next-btn");
+  const resultBox = document.getElementById("result");
+
+  let currentQuestionIndex = 0;
+  let score = 0;
+
+  function startQuiz() {
+    currentQuestionIndex = 0;
+    score = 0;
+    nextButton.innerText = "Next";
+    resultBox.innerHTML = "";
+    showQuestion();
+  }
+
+  function showQuestion() {
+    resetState();
+    const current = questions[currentQuestionIndex];
+    questionElement.innerText = current.question;
+
+    current.answers.forEach((answer) => {
+      const btn = document.createElement("button");
+      btn.innerText = answer.text;
+      btn.classList.add("btn");
+      btn.addEventListener("click", () => selectAnswer(btn, answer.correct));
+      answerButtons.appendChild(btn);
+    });
+  }
+
+  function resetState() {
+    nextButton.style.display = "none";
+    answerButtons.innerHTML = "";
+  }
+
+  function selectAnswer(button, correct) {
+    const buttons = answerButtons.querySelectorAll(".btn");
+    buttons.forEach((btn) => btn.disabled = true);
+
+    if (correct) {
+      button.classList.add("correct");
+      score++;
+    } else {
+      button.classList.add("wrong");
+      // highlight the right answer
+      buttons.forEach(btn => {
+        if (btn.innerText === questions[currentQuestionIndex].answers.find(a => a.correct).text) {
+          btn.classList.add("correct");
+        }
+      });
+    }
+    nextButton.style.display = "block";
+  }
+
+  function nextQuestion() {
+    currentQuestionIndex++;
+    if (currentQuestionIndex < questions.length) {
+      showQuestion();
+    } else {
+      showScore();
+    }
+  }
+
+  function showScore() {
+    resetState();
+    questionElement.innerText = "🎉 Quiz Completed!";
+    resultBox.innerHTML = `Your score: <strong>${score} / ${questions.length}</strong>`;
+    nextButton.innerText = "Restart";
+    nextButton.style.display = "block";
+    nextButton.onclick = startQuiz;
+  }
+
+  startQuiz();
+</script>
+
+</body>
+</html>
