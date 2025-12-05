@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Table Lamp with Hanging Pull Strip</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background: #222;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+    flex-direction: column;
+  }
+
+  /* Lamp container */
+  .lamp-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: -50px; /* overlap table */
+  }
+
+  /* Table */
+  .table {
+    width: 250px;
+    height: 25px;
+    background: #8B5A2B;
+    border-radius: 5px;
+    box-shadow: 0 4px 10px #000;
+    position: relative;
+    z-index: 0;
+  }
+
+  /* Lamp shade */
+  .lamp-shade {
+    width: 120px;
+    height: 80px;
+    background: #555;
+    border-radius: 60px 60px 20px 20px;
+    box-shadow: 0 0 15px #000;
+    position: relative;
+    transition: background 0.3s, box-shadow 0.3s;
+    z-index: 1;
+  }
+
+  /* Lamp base */
+  .lamp-base {
+    width: 30px;
+    height: 50px;
+    background: #333;
+    border-radius: 15px;
+    margin-top: -10px;
+    z-index: 1;
+  }
+
+  /* Glow effect */
+  .glow {
+    position: absolute;
+    width: 200px;
+    height: 150px;
+    border-radius: 50%;
+    top: -70px;
+    left: -40px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+    background: radial-gradient(circle, rgba(255,255,180,0.7) 0%, rgba(255,255,180,0) 80%);
+    transition: opacity 0.3s;
+  }
+
+  /* Lamp ON */
+  .lamp-shade.on {
+    background: #FFD700;
+    box-shadow: 0 0 60px 30px rgba(255,255,150,0.7);
+  }
+
+  .lamp-shade.on + .glow {
+    opacity: 1;
+  }
+
+  /* Hanging cord */
+  .cord {
+    width: 4px;
+    height: 100px; /* longer hanging cord */
+    background: #aaa;
+    position: absolute;
+    top: 80px; /* start below lamp shade */
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 2px;
+    z-index: 2;
+  }
+
+  /* Pull handle at the end of cord */
+  .pull {
+    width: 15px;
+    height: 20px;
+    background: #ccc;
+    border-radius: 5px;
+    position: absolute;
+    top: 100px; /* bottom of cord */
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: pointer;
+    box-shadow: 0 0 3px #000;
+    z-index: 3;
+    transition: top 0.2s;
+  }
+
+  /* Pull down animation */
+  .pull.pull-down {
+    top: 120px; /* pulled down */
+  }
+</style>
+</head>
+<body>
+
+<div class="lamp-container">
+  <div class="lamp-shade" id="lamp-shade"></div>
+  <div class="lamp-base"></div>
+  <div class="glow"></div>
+  <div class="cord"></div>
+  <div class="pull" id="pull"></div>
+</div>
+
+<div class="table"></div>
+
+<script>
+  const pull = document.getElementById('pull');
+  const lampShade = document.getElementById('lamp-shade');
+  let isOn = false;
+
+  pull.addEventListener('click', () => {
+    // Animate pull strip
+    pull.classList.add('pull-down');
+    setTimeout(() => {
+      pull.classList.remove('pull-down'); // return to original
+    }, 200);
+
+    // Toggle lamp ON/OFF
+    isOn = !isOn;
+    lampShade.classList.toggle('on', isOn);
+  });
+</script>
+
+</body>
+</html>
